@@ -1,0 +1,38 @@
+Package: amerdigest
+Type: Package
+Title: Mobility in the Americas Digest
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Kenneth S.", "Reyes",
+      email = "kereyes@iom.int",
+      role = c("aut", "cre")
+    ),
+    person(
+      "Freddy Nicolas", "Marquez",
+      email = "fmarquez@iom.int",
+      role = c("aut", "cre")
+    )
+  )
+Description: Generates report with charts for a given country using a prescribed
+    template.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    R (>= 4.3),
+Imports: 
+    cli,
+    cowplot (>= 1.1.3),
+    dplyr (>= 1.1.4),
+    forcats,
+    gdidata,
+    ggplot2 (>= 3.5.0),
+    ggtext,
+    lubridate,
+    rlang,
+    stringr,
+    tibble,
+    tidyr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
