@@ -11,12 +11,13 @@ Authors@R: c(
     person(
       "Freddy Nicolas", "Marquez",
       email = "fmarquez@iom.int",
-      role = c("aut", "cre")
+      role = c("aut" )
     )
   )
 Description: Generates report with charts for a given country using a prescribed
     template.
 License: MIT + file LICENSE
+URL: https://iom.github.io/amerdigest/
 Encoding: UTF-8
 LazyData: true
 Depends: 
@@ -33,6 +34,7 @@ Imports:
     rlang,
     stringr,
     tibble,
+    tsibble,
     tidyr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

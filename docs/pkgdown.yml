@@ -1,0 +1,8 @@
+pandoc: '3.5'
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles: {}
+last_built: 2025-05-19T12:42Z
+urls:
+  reference: https://iom.github.io/amerdigest/reference
+  article: https://iom.github.io/amerdigest/articles
