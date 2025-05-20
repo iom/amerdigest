@@ -2,26 +2,24 @@
 % Please edit documentation in R/pal.R
 \name{pal}
 \alias{pal}
-\title{Choose an IOM color}
+\title{Choose an IOM Color Palette Shade}
 \usage{
 pal(color, shade = 1)
 }
 \arguments{
-\item{color}{Accepts "blues", "unblues", "yellows", "greens", "oranges",
-"reds", and "grays".}
+\item{color}{Character. Name of the color palette. Must be one of
+\code{"blues"}, \code{"unblues"}, \code{"yellows"}, \code{"greens"}, \code{"oranges"}, \code{"reds"}, or \code{"grays"}.}
 
-\item{shade}{The shade of the chosen color, from 1 (darkest) to 5 (lightest).
-Accepts vectors.}
+\item{shade}{Integer vector. Shade(s) to select from 1 (darkest) to 5 (lightest).
+Can be a single number or a vector of shades.}
 }
 \value{
-Hex code/s as a string or vector of strings.
+Character vector of hex color codes corresponding to the selected shades.
 }
 \description{
-Choose an IOM color
+Returns one or more hex color codes from predefined IOM color palettes.
 }
 \examples{
-
 pal("blues")
 pal("reds", c(1, 3, 5))
-
 }

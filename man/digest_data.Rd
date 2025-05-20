@@ -2,20 +2,28 @@
 % Please edit documentation in R/digest_data.R
 \name{digest_data}
 \alias{digest_data}
-\title{Get data for plot}
+\title{Retrieve Data for Plotting by Key and Country ISO Code}
 \usage{
 digest_data(key, iso = NULL, ...)
 }
 \arguments{
-\item{key}{Get key.}
+\item{key}{Character. The data key to specify which getter function to call.
+Must correspond to a function named \verb{get_<key>} inside the \code{amerdigest} package.}
 
-\item{iso}{Country.}
+\item{iso}{Character or NULL. Optional ISO3 country code to filter data by country.
+If provided, must exist in \code{countrynames$iso3}.}
 
-\item{...}{Optional arguments.}
+\item{...}{Additional arguments passed to the underlying getter function.}
 }
 \value{
-List.
+A list (or object) returned by the called getter function.
 }
 \description{
-Get data for plot
+This function dynamically calls a getter function from the \code{amerdigest} package
+based on the provided \code{key}. Optionally, it filters data by the ISO3 country code.
+}
+\examples{
+# Example usage assuming amerdigest and countrynames are loaded
+data <- digest_data("regflow", iso = "USA")
+knitr::kable(data)
 }

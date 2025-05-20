@@ -2,6 +2,7 @@
 # Mobility in the Americas Data Digest
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 This R package generates a data digest for a given country in the
@@ -24,5 +25,5 @@ three-letter ISO code of the country of choice.
 
 ``` r
 library(amerdigest)
-render_digest("ARG")  # Generate digest for Argentina
+render_digest(country_iso="ARG")  # Generate digest for Argentina
 ```

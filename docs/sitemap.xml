@@ -1,18 +1,34 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://iom.github.io/amerdigest/404.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/articles/index.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/articles/package-development-documentation-through-fusen.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/authors.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/index.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/LICENSE-text.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/LICENSE.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/amerdigest-package.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/apply_theme.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/caption_placeholder.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/countrynames.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/digest_data.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/digest_plot.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/get_regflow.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/get_regnet.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/index.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/irreg.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/package_font_installed.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/package_font_registered.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/pal.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/pl.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/plot_empty.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/plot_label.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/plot_regflow.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/plot_regnet.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/prettylabel.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/regin.html</loc></url>
 <url><loc>https://iom.github.io/amerdigest/reference/regout.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/render_digest.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/set_axis.html</loc></url>
+<url><loc>https://iom.github.io/amerdigest/reference/update_geom_font_defaults.html</loc></url>
 </urlset>
 

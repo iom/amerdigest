@@ -1,0 +1,42 @@
+---
+title: "Argentina"
+output-file: "argentina"
+params:
+  iso: "ARG"
+execute:
+  echo: false
+  warning: false
+format:
+  digest-typst: default
+---
+
+```{r}
+#| include: false
+devtools::load_all(".")
+knitr::opts_chunk$set(dev = "svglite")
+code <- params$iso
+i <- 1
+```
+
+```{=typst}
+#header(name: "I. Header")
+```
+
+```{=typst}
+#caption[`r caption_placeholder(2)`]
+```
+
+```{r}
+#| fig-width: 6.7
+#| fig-height: 2.75
+#| message: false
+
+cowplot::plot_grid(
+  digest_plot(key="regflow", iso = code) |> 
+    plot_label(i, h = .15 / 2.75),
+  digest_plot(key="regnet", iso =  code) |> 
+    plot_label(i + 1, h = .15 / 2.75)
+)
+i <- i + 2
+```
+

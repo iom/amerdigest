@@ -1,0 +1,51 @@
+flat_my_fun.Rmd:
+  path: dev/flat_my_fun.Rmd
+  state: active
+  R:
+  - R/apply_theme.R
+  - R/caption_placeholder.R
+  - R/digest_data.R
+  - R/digest_plot.R
+  - R/get_regflow.R
+  - R/get_regnet.R
+  - R/package_font_installed.R
+  - R/package_font_registered.R
+  - R/pal.R
+  - R/pl.R
+  - R/plot_empty.R
+  - R/plot_label.R
+  - R/plot_regflow.R
+  - R/plot_regnet.R
+  - R/prettylabel.R
+  - R/render_digest.R
+  - R/set_axis.R
+  - R/update_geom_font_defaults.R
+  tests:
+  - tests/testthat/test-apply_theme.R
+  - tests/testthat/test-pal.R
+  - tests/testthat/test-set_axis.R
+  - tests/testthat/test-plot_label.R
+  - tests/testthat/test-prettylabel.R
+  - tests/testthat/test-pl.R
+  - tests/testthat/test-package_font_installed.R
+  - tests/testthat/test-package_font_registered.R
+  - tests/testthat/test-update_geom_font_defaults.R
+  - tests/testthat/test-plot_empty.R
+  - tests/testthat/test-plot_regflow.R
+  - tests/testthat/test-plot_regnet.R
+  - tests/testthat/test-get_regflow.R
+  - tests/testthat/test-get_regnet.R
+  - tests/testthat/test-digest_data.R
+  - tests/testthat/test-digest_plot.R
+  - tests/testthat/test-caption_placeholder.R
+  - tests/testthat/test-render_digest.R
+  vignettes: vignettes/package-development-documentation-through-fusen.Rmd
+  inflate:
+    flat_file: dev/flat_my_fun.Rmd
+    vignette_name: Package Development Documentation through {fusen}
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
+    clean: ask
+    codecov: false

@@ -1,0 +1,1423 @@
+---
+title: "Package Development Documentation with {fusen}"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r development, include=FALSE}
+library(testthat)
+```
+
+```{r development-load}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+```
+
+# Theming 
+
+## apply_theme
+    
+
+```{r function-apply_theme}
+#' Apply IOM theme to a ggplot object
+#'
+#' Adds thematic presets adhering to the IOM visual branding to a ggplot object.
+#' The function adjusts text sizes, colors, legend positioning, panel grids,
+#' and other visual elements based on the specified plot type.
+#'
+#' The `basesize` parameter controls the base font size for axis labels, titles,
+#' and plot annotations. The `font` parameter sets the font family.
+#' The `facets` parameter specifies whether the plot uses faceting, which adjusts
+#' the strip appearance accordingly.
+#'
+#' Supported plot types:
+#' \itemize{
+#'   \item `"line"` - Line plots with appropriate legend keys and grid lines.
+#'   \item `"bar-horizontal"` - Horizontal bar plots with grid on x-axis.
+#'   \item `"bar-vertical"` - Vertical bar plots with grid on y-axis.
+#'   \item `"scatter"` - Scatter plots with grid lines.
+#'   \item `"map"` - Map plots with minimal axis text and no grid.
+#'   \item `"void"` - Empty theme (not implemented here, but can be added).
+#' }
+#'
+#' @param type Character. Type of plot to theme. One of "line", "bar-horizontal",
+#'   "bar-vertical", "scatter", "map", or "void".
+#' @param basesize Numeric. Base font size in points. Default is 7.
+#' @param font Character. Font family for all text elements. Default is "Gill Sans Nova".
+#' @param facets Logical. Whether the plot is faceted. Default is FALSE.
+#'
+#' @return A list of ggplot2 theme elements to be added to a ggplot object.
+#' 
+#' @importFrom ggplot2 theme element_text element_blank 
+#'                    element_line element_rect margin unit
+#' @importFrom grid unit 
+#' @export
+
+apply_theme <- function(type,
+                        basesize = 7,
+                        font = "Open Sans",
+                        facets = FALSE) {
+
+
+
+  # Define a simple color palette function stub
+  pal <- function(name = "blues", n = 5) {
+    # This is a stub; replace with your actual palette function.
+    # Here we return a vector of hex colors for 'blues'
+    blues <- c("#f7fbff", "#deebf7", "#9ecae1", "#3182bd", "#08519c")
+    if (n > length(blues)) n <- length(blues)
+    return(blues[seq_len(n)])
+  }
+
+  # Size parameters
+  size <- list(
+    text = basesize,
+    title = basesize + 2,
+    stext = basesize - 1,
+    footnote = basesize - 2
+  )
+
+  # Scaling function for margins and line widths
+  k <- function(factor = 1) factor * size$text / .pt
+
+  panel_grid_color <- pal("blues", 5)[4]
+  panel_grid_width <- k(0.1)
+  bar_key_size <- grid::unit(1.25 * size$text, "points")
+  line_key_height <- grid::unit(size$text, "points")
+  line_key_width <- grid::unit(2 * size$text, "points")
+  steps_key_height <- grid::unit(0.75 * size$text, "points")
+  steps_key_width <- grid::unit(2 * size$text, "points")
+
+  base <- theme(
+    text = element_text(family = font, color = pal("blues")[5]),
+
+    axis.title = element_blank(),
+    axis.text = element_text(size = size$text, color = pal("blues")[5]),
+    axis.ticks = element_blank(),
+
+    legend.background = element_blank(),
+    legend.key = element_blank(),
+    legend.key.spacing.y = grid::unit(0 * size$text, "points"),
+    legend.text = element_text(
+      size = size$text,
+      margin = margin(r = k(0.5), l = k(1))
+    ),
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.box.margin = margin(t = k(-3), b = k(-3)),
+
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    panel.grid.minor = element_blank(),
+
+    plot.background = element_blank(),
+    plot.title = element_text(
+      face = "bold",
+      size = size$title,
+      hjust = 0.5,
+      margin = margin(b = k(3.5))
+    ),
+    plot.title.position = "plot",
+    plot.caption = element_text(
+      face = "italic",
+      color = pal("blues")[3],
+      size = size$text,
+      hjust = 0,
+      lineheight = 1.2,
+      margin = margin(t = k(3.5), r = k(1), l = k(1))
+    ),
+    plot.caption.position = "plot",
+    plot.margin = margin(k(1), k(2), k(1), k(2))
+  )
+
+  theme <- base
+
+  if (type == "bar-horizontal") {
+    theme_barh <- theme(
+      legend.key.size = bar_key_size,
+      panel.grid.major.x = element_line(
+        linewidth = panel_grid_width,
+        color = panel_grid_color
+      ),
+      panel.grid.major.y = element_blank()
+    )
+    theme <- theme + theme_barh
+  } else if (type == "bar-vertical") {
+    theme_barv <- theme(
+      legend.key.size = bar_key_size,
+      panel.grid.major.x = element_blank(),
+      panel.grid.major.y = element_line(
+        linewidth = panel_grid_width,
+        color = panel_grid_color
+      )
+    )
+    theme <- theme + theme_barv
+  } else if (type == "line") {
+    theme_line <- theme(
+      legend.key.height = line_key_height,
+      legend.key.width = line_key_width,
+      panel.grid.major.x = element_blank(),
+      panel.grid.major.y = element_line(
+        linewidth = panel_grid_width,
+        color = panel_grid_color
+      )
+    )
+    theme <- theme + theme_line
+  } else if (type == "scatter") {
+    theme_scat <- theme(
+      legend.key.size = bar_key_size,
+      panel.grid.major = element_line(
+        linewidth = panel_grid_width,
+        color = panel_grid_color
+      )
+    )
+    theme <- theme + theme_scat
+  } else if (type == "map") {
+    theme_map <- theme(
+      axis.text = element_blank(),
+      legend.key.height = steps_key_height,
+      legend.key.width = steps_key_width,
+      legend.text = element_text(
+        size = size$stext,
+        margin = margin(t = k(1.5))
+      ),
+      panel.grid.major = element_blank()
+    )
+    theme <- theme + theme_map
+  } else if (type == "void") {
+    # You can define an empty theme here if needed
+    theme <- theme_void()
+  } else {
+    warning("Unknown theme type, returning base theme.")
+  }
+
+  if (facets) {
+    theme_facets <- theme(
+      strip.background = element_rect(fill = NA),
+      strip.text = element_text(
+        size = size$title,
+        color = pal("blues")[5],
+        margin = margin(b = k(3.5))
+      )
+    )
+    theme <- theme + theme_facets
+  }
+
+  return(theme)
+}
+```
+  
+```{r example-apply_theme}
+library(ggplot2)
+
+# Simple scatter plot with IOM theme
+p <- ggplot(mpg, aes(displ, hwy, color = class)) +
+  geom_point() +
+  labs(
+    title = "Scatter Plot with IOM Theme",
+    caption = "Source: mpg dataset"
+  ) +
+  apply_theme(type = "scatter", basesize = 9)
+
+p
+```
+  
+```{r tests-apply_theme}
+test_that("apply_theme works", {
+  expect_true(inherits(apply_theme, "function")) 
+})
+```
+   
+   
+     
+   
+## pal
+
+```{r function-pal}
+#' Choose an IOM Color Palette Shade
+#'
+#' Returns one or more hex color codes from predefined IOM color palettes.
+#'
+#' @param color Character. Name of the color palette. Must be one of
+#'   `"blues"`, `"unblues"`, `"yellows"`, `"greens"`, `"oranges"`, `"reds"`, or `"grays"`.
+#' @param shade Integer vector. Shade(s) to select from 1 (darkest) to 5 (lightest).
+#'   Can be a single number or a vector of shades.
+#'
+#' @return Character vector of hex color codes corresponding to the selected shades.
+#'
+#' @export
+pal <- function(color, shade = 1) {
+  # Define palettes with hex color codes
+  palette <- list(
+    blues    = c("#0033A0", "#4068B8", "#8099D0", "#B3C2E3", "#D9E0F1"),
+    unblues  = c("#418FDE", "#84ADEC", "#ADC9F2", "#CEDEF7", "#E6EFFB", "#F4F8FD"),
+    yellows  = c("#FFB81C", "#FFCA55", "#FFDC8E", "#FFEABB", "#FFF4DD"),
+    greens   = c("#5CB8B2", "#85CAC5", "#AEDCD9", "#CEEAE8", "#E7F4F3"),
+    oranges  = c("#FF671F", "#FF8D57", "#FFB38F", "#FFD1BC", "#FFE8DD"),
+    reds     = c("#D22630", "#DD5C64", "#E99398", "#F2BEC1", "#F8DEE0"),
+    grays    = c("#404040", "#666666", "#999999", "#CCCCCC", "#F2F2F2")
+  )
+
+  # Check if color exists in palette
+  if (!color %in% names(palette)) {
+    stop(sprintf("Color '%s' not found. Choose from: %s", color, paste(names(palette), collapse = ", ")))
+  }
+
+  # Validate shade values
+  max_shade <- length(palette[[color]])
+  if (any(shade < 1 | shade > max_shade)) {
+    stop(sprintf("Shade values must be between 1 and %d for color '%s'.", max_shade, color))
+  }
+
+  # Return colors for given shade indices
+  colors <- palette[[color]][shade]
+
+  return(colors)
+}
+
+```
+  
+```{r example-pal}
+pal("blues")
+pal("reds", c(1, 3, 5))
+```
+  
+```{r tests-pal}
+test_that("pal works", {
+  expect_true(inherits(pal, "function")) 
+})
+```
+  
+
+## set_axis
+    
+
+  
+```{r function-set_axis}
+#' Set Y-Axis Formatting for Chart Plots
+#'
+#' Dynamically determines the appropriate Y-axis breaks, labels, and title
+#' based on the maximum value in a vector of numeric data. Used to standardize
+#' axis formatting across plots.
+#'
+#' @param values A numeric vector. Typically, a column of values to be plotted.
+#' @param units A character string describing the units of measurement (e.g., "Persons", "USD").
+#'
+#' @return A list with components:
+#' \itemize{
+#'   \item \code{breaks} — Either a numeric vector or \code{waiver()}.
+#'   \item \code{labels} — A labeling function or character vector.
+#'   \item \code{title} — A character string for axis title.
+#' }
+#' @export
+
+set_axis <- function(values, units = "Persons") {
+
+  max_n <- max(values, na.rm = TRUE)
+
+  write_title <- function(scale, units) {
+    if (units == "USD") paste0(scale, " ", units)
+    else paste0(scale, " of ", tolower(units))
+  }
+
+  output <- list(
+    breaks = waiver(),
+    labels = function(x) x / 10^6,
+    title = write_title("Millions", units)
+  )
+
+  if (max_n < 12) {
+    output$title <- units
+    output$breaks <- c(0, 5, 10)
+    output$labels <- waiver()
+  }
+  if (max_n >= 12 & max_n < 1200) {
+    output$title <- units
+    output$labels <- waiver()
+  }
+  if (max_n >= 1200 & max_n < 1.20e6) {
+    output$title <- write_title("Thousands", units)
+    output$labels <- function(x) x / 1e3
+  }
+  if (max_n >= 1.20e6 & max_n < 1.40e6) {
+    output$breaks <- seq(0, 1.25e6, 0.25e6)
+    output$labels <- c("0", "0.25", "0.50", "0.75", "1.00", "1.25")
+  }
+  if (max_n >= 1.40e6 & max_n < 1.80e6) {
+    output$breaks <- seq(0, 1.50e6, 0.50e6)
+    output$labels <- c("0", "0.5", "1.0", "1.5")
+  }
+
+  if (max_n >= 1.20e9 & max_n < 1.40e9) {
+    output$title <- write_title("Billions", units)
+    output$breaks <- seq(0, 1.50e9, 0.25e9)
+    output$labels <- c("0", "0.25", "0.50", "0.75", "1.00", "1.25", "1.50")
+  }
+  if (max_n >= 1.40e9 & max_n < 1.80e9) {
+    output$title <- write_title("Billions", units)
+    output$breaks <- seq(0, 1.50e9, 0.50e9)
+    output$labels <- c("0", "0.5", "1.0", "1.5")
+  }
+  if (max_n >= 1.80e9) {
+    output$title <- write_title("Billions", units)
+    output$labels <- function(x) x / 1e9
+  }
+
+  return(output)
+}
+```
+  
+```{r example-set_axis}
+set_axis(c(100, 500, 1000), units = "Persons")
+set_axis(c(5e8, 1.5e9), units = "USD")
+```
+  
+```{r tests-set_axis}
+test_that("set_axis works", {
+  expect_true(inherits(set_axis, "function")) 
+})
+```
+  
+
+## plot_label
+    
+
+  
+```{r function-plot_label}
+#' Add Label to Top of ggplot Object
+#'
+#' Adds a styled label with a colored background to the top of a plot using `cowplot`.
+#' Useful for annotating subplots with country names, indicators, or categories.
+#'
+#' @param plot A ggplot object to be labeled.
+#' @param label A string to display as the label.
+#' @param span Integer (1, 2, or 3) controlling the width of the label box.
+#' @param h Numeric height of the label box relative to the plot (default = 0.06).
+#' @param basesize Numeric. Base font size in points. Default is 7.
+#' @param font Character. Font family for all text elements. Default is "Gill Sans Nova".
+#' @return A ggdraw object (from the `cowplot` package) with the label applied.
+#'
+#' @importFrom cowplot ggdraw draw_label draw_grob
+#' @importFrom grid rectGrob gpar
+#'
+#' @export
+plot_label <- function(plot, label, span = 2, h = 0.06, basesize = 7, font = "Open Sans") {
+
+  box <- grid::rectGrob(gp = grid::gpar(fill = pal("unblues", 3), col = NA))
+
+  width <- 0.025 + 0.015 * nchar(label)
+  height <- h
+  if (span == 1) width <- width / 2
+  if (span == 3) width <- width * 1.5
+
+  p <- cowplot::ggdraw(plot) +
+    cowplot::draw_grob(
+      box,
+      x = 0,
+      y = 1,
+      vjust = 1,
+      width = width,
+      height = height
+    ) +
+    cowplot::draw_label(
+      label,
+      x = width / 2,
+      y = 1 - height / 2,
+      hjust = 0.5,
+      vjust = 0.5,
+      size = basesize,
+      fontface = "bold",
+      fontfamily = font,
+      color = "white"
+    )
+  
+  return(p)
+}
+```
+  
+```{r example-plot_label}
+library(ggplot2)
+p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+plot_label(p, "Fuel Efficiency", span = 2)
+```
+  
+```{r tests-plot_label}
+test_that("plot_label works", {
+  expect_true(inherits(plot_label, "function")) 
+})
+```
+  
+  
+## prettylabel
+    
+
+  
+```{r function-prettylabel}
+#' Pretty Number Formatting
+#'
+#' Formats numbers for display in charts and tables. Supports abbreviation
+#' (e.g., thousands, millions), spelling out large numbers, adding percent
+#' or currency signs, and controlling decimal padding.
+#'
+#' @param N A number or numeric vector to be formatted.
+#' @param signif Number of significant digits to retain. Must be > 0. Default is 2.
+#' @param shorten Logical. If `TRUE`, abbreviates long numbers (e.g., 1,200 → "1.2K").
+#'        Currently not used directly but preserved for backward compatibility.
+#' @param spell Logical. If `TRUE`, spells out large values (e.g., "million" instead of "M").
+#' @param padzero Logical. If `TRUE`, pads decimals to reach the requested precision.
+#' @param pct Logical. If `TRUE`, appends a percent sign or " per cent" if `spell = TRUE`.
+#' @param currency Optional string (e.g., "$", "€") to prepend as a currency symbol.
+#'
+#' @return A character vector of formatted number labels.
+#'
+#' @importFrom cli cli_abort
+#'
+#' @export
+#'
+
+prettylabel <- function(N,
+                        signif = 2,
+                        shorten = TRUE,  # Not used, included for legacy interface
+                        spell = FALSE,
+                        padzero = FALSE,
+                        pct = FALSE,
+                        currency = NULL) {
+
+  if (signif <= 0) {
+    cli::cli_abort("`signif` must be greater than zero.")
+  }
+
+  fmt <- function(num) {
+    parts <- strsplit(as.character(num), "\\.")[[1]]
+    units <- nchar(parts[1])
+    decimals <- ifelse(is.na(parts[2]), 0, nchar(parts[2]))
+
+    digits <- signif
+    if (units > signif) digits <- units
+    num <- signif(num, digits = digits)
+
+    nsmall <- 0
+    if (padzero && (units + decimals < signif)) {
+      nsmall <- signif - units
+    }
+
+    format(
+      num,
+      digits = signif,
+      nsmall = nsmall,
+      trim = TRUE,
+      big.mark = ",",
+      scientific = FALSE
+    )
+  }
+
+  suffixes <- if (spell) {
+    list(
+      pc = " per cent",
+      mn = " million",
+      bn = " billion",
+      tn = " trillion"
+    )
+  } else {
+    list(
+      pc = "%",
+      th = "K",
+      mn = "M",
+      bn = "B",
+      tn = "T"
+    )
+  }
+
+  labels <- character(length(N))
+
+  for (i in seq_along(N)) {
+    n <- N[i]
+
+    if (is.na(n)) {
+      labels[i] <- NA
+      next
+    }
+
+    label <- list(
+      prefix = if (is.null(currency)) "" else currency,
+      number = NULL,
+      suffix = NULL
+    )
+
+    if (pct) {
+      label$number <- fmt(n)
+      label$suffix <- suffixes$pc
+
+    } else if (n <= 999.5) {
+      label$number <- fmt(n)
+
+    } else if (n >= 999.5 & n < 999500) {
+      if (spell) {
+        label$number <- fmt(n)
+      } else {
+        n <- n / 1e3
+        label$number <- fmt(n)
+        label$suffix <- suffixes$th
+      }
+
+    } else if (n >= 999500 & n < 999.5 * 1e6) {
+      n <- n / 1e6
+      label$number <- fmt(n)
+      label$suffix <- suffixes$mn
+
+    } else if (n >= 999.5 * 1e6 & n < 999.5 * 1e9) {
+      n <- n / 1e9
+      label$number <- fmt(n)
+      label$suffix <- suffixes$bn
+
+    } else {
+      n <- n / 1e12
+      label$number <- fmt(n)
+      label$suffix <- suffixes$tn
+    }
+
+    labels[i] <- paste0(label$prefix, label$number, label$suffix)
+  }
+
+  return(labels)
+}
+```
+  
+```{r example-prettylabel}
+
+prettylabel(123456)                      # "123K"
+
+prettylabel(123456789, spell = TRUE)     # "123 million"
+
+prettylabel(0.756, pct = TRUE)           # "75.6%"
+
+prettylabel(1200, currency = "$")        # "$1.2K"
+
+prettylabel(c(1e6, 2e9), signif = 3)     # "1.00M" "2.00B"
+
+prettylabel(NA)                          # NA
+
+
+```
+  
+```{r tests-prettylabel}
+test_that("prettylabel works", {
+  expect_true(inherits(prettylabel, "function")) 
+})
+```
+    
+  
+## pl
+    
+
+  
+```{r function-pl}
+#' Format numbers with pretty labels
+#'
+#' These wrapper functions apply the `prettylabel` function with preset options
+#' for formatting numbers, currencies, and percentages in plots or tables.
+#'
+#' Note: This assumes you have a function named `prettylabel` available in your environment.
+#' If not, please provide or load it.
+#'
+#' @param num Numeric vector or single number to format.
+#' @return Character vector of formatted numbers.
+#' @export
+
+pl <- function(num) prettylabel(num, signif = 2, spell = TRUE)
+
+#' @rdname pl
+pl1 <- function(num) prettylabel(num, signif = 2, spell = TRUE)
+
+#' @rdname pl
+pl_usd <- function(num) prettylabel(num, spell = TRUE, currency = "\\$")
+
+#' @rdname pl
+pl_pct <- function(num) prettylabel(num, signif = 2, pct = TRUE)
+
+#' @rdname pl
+pl_pct1 <- function(num) prettylabel(num, signif = 2, pct = TRUE)
+```
+  
+```{r example-pl}
+# Example usage if prettylabel is defined
+pl(c(1234, 56789))
+```
+  
+```{r tests-pl}
+test_that("pl works", {
+  expect_true(inherits(pl, "function")) 
+})
+```
+
+
+
+# Font Management
+this part is check during the package load with the zzz.R function
+
+## package_font_installed
+    
+ 
+  
+```{r function-package_font_installed}
+#' Check if Gill Sans Nova font family is installed in the system
+#'
+#' Verify if you have Gill Sans Nova font installed in your system
+#'
+#' @importFrom systemfonts system_fonts
+#' @importFrom extrafont loadfonts
+#'
+#' @returns TRUE if Gill Sans Nova is installed in the system
+#' @export
+
+
+package_font_installed <- function() { 
+  extrafont::loadfonts(device = "win"  , quiet = TRUE)  # For Windows
+  extrafont::loadfonts(device = "pdf", quiet = TRUE)  # For PDF output
+  suppressMessages(extrafont::loadfonts())
+  sys_fonts <- systemfonts::system_fonts()
+  any(grepl("Gill Sans Nova", sys_fonts$family, ignore.case = TRUE))
+  
+}
+```
+  
+```{r example-package_font_installed}
+test <- systemfonts::system_fonts() |>
+              dplyr::filter(  family == "Gill Sans Nova"  )
+test
+package_font_installed()
+```
+  
+```{r tests-package_font_installed}
+test_that("package_font_installed works", {
+  expect_true(inherits(package_font_installed, "function")) 
+})
+```
+  
+## package_font_registered
+    
+ 
+  
+```{r function-package_font_registered}
+#' Check if Open Sans font is registered through \code{extrafont}
+#'
+#' Verify if Open Sans is registered through \code{extrafont}
+#'
+#' @importFrom systemfonts system_fonts
+#' @importFrom extrafont fonts
+#'
+#' @returns TRUE if OpenSans, Arial and Gill Sans Nova are registered
+#' @export
+
+package_font_registered <- function() {
+  any(grepl("Gill Sans Nova", extrafont::fonts(), ignore.case = TRUE))
+  suppressMessages(extrafont::loadfonts())
+}
+```
+  
+```{r example-package_font_registered}
+package_font_registered()
+```
+  
+```{r tests-package_font_registered}
+test_that("package_font_registered works", {
+  expect_true(inherits(package_font_registered, "function")) 
+})
+```
+    
+   
+## update_geom_font_defaults
+
+```{r function-update_geom_font_defaults}
+#' Update matching font defaults for text geoms
+#'
+#' Updates [ggplot2::geom_label] and [ggplot2::geom_text] font defaults
+#' @importFrom ggrepel GeomTextRepel GeomLabelRepel
+#'
+#' @param family Font family, default "Lato".
+#' @param face Font face, default "plain".
+#' @param size font size in mm.
+#' @param color Font color, default "#1a1a1a".
+#'
+#' @export
+
+update_geom_font_defaults <- function(
+    family = if (package_font_installed()) "Gill Sans Nova" else "sans",
+    face = "plain",
+    size = 3.5,
+    color = "#1a1a1a") {
+  ggplot2::update_geom_defaults(
+    "text",
+    list(family = family, face = face, size = size, color = color)
+  )
+  ggplot2::update_geom_defaults(
+    "label",
+    list(family = family, face = face, size = size, color = color)
+  ) 
+}
+```
+  
+```{r example-update_geom_font_defaults}
+update_geom_font_defaults()
+```
+  
+```{r tests-update_geom_font_defaults}
+test_that("update_geom_font_defaults works", {
+  expect_true(inherits(update_geom_font_defaults, "function")) 
+})
+```
+
+  
+# Plot Type
+
+## plot_empty
+    
+
+  
+```{r function-plot_empty}
+#' Generate an Empty Placeholder Plot
+#'
+#' @param title Plot title.
+#' @param source Data source caption.
+#' @param basesize Base font size. Default is 7.
+#' @param font Font family. Default is "Open Sans".
+#' @param msg Message to display. Default is "No data".
+#' @importFrom cowplot ggdraw draw_label draw_grob
+#' @importFrom grid rectGrob gpar
+#'
+#' @return A ggplot2 object with a placeholder message.
+#' @export
+plot_empty <- function(title,
+                       source,
+                       basesize = 7,
+                       font = "Open Sans",
+                       msg = "No data") {
+
+  k <- function(factor = 1) factor * basesize / .pt
+
+  plot <- ggplot(data.frame(i = 1:10), aes(x = i)) +
+    labs(title = title, caption = source) +
+    apply_theme("line", basesize = basesize, font = font) +
+    theme(
+      axis.text = element_blank(),
+      panel.background = element_rect(color = NA, fill = pal("unblues", 6)),
+      plot.caption = element_text(margin = margin(t = k(), r = k(), l = k()))
+    )
+
+  plot <- cowplot::ggdraw(plot) +
+    cowplot::draw_label(
+      msg,
+      y = 0.5,
+      fontfamily = font,
+      color = pal("blues", 3),
+      size = k(3)
+    )
+
+  return(plot)
+}
+```
+  
+```{r example-plot_empty}
+plot_empty("No Data", "Source: Example Org")
+```
+  
+```{r tests-plot_empty}
+test_that("plot_empty works", {
+  expect_true(inherits(plot_empty, "function")) 
+})
+```
+  
+## plot_regflow
+    
+
+  
+```{r function-plot_regflow}
+#' Plot Regular Entries and Exits
+#'
+#' @param iso ISO3 country code.
+#' @param basesize Base font size. Default is 7.
+#' @param font Font family. Default is "Open Sans".
+#' @param title Plot title. Default is "Regular entries and exits".
+#' @import ggplot2
+#' @importFrom tsibble scale_x_yearmonth
+#'
+#' @return A ggplot2 object.
+#' @export
+plot_regflow <- function(iso,
+                         basesize = 7,
+                         font = "Open Sans",
+                         title = "Regular entries and exits") {
+
+  k <- function(factor = 1) factor * basesize / .pt
+  source <- "Source: IOM Lighthouse Project."
+  data <- digest_data("regflow", iso)
+
+  if (nrow(data) > 0) {
+    axis <- set_axis(data$n, "Persons")
+
+    plot <- ggplot(data, aes(x = t, y = n, group = var, color = var)) +
+      geom_line(linewidth = k(0.25)) +
+      geom_hline(yintercept = 0, color = pal("blues"), linewidth = k(0.1)) +
+      labs(title = title, caption = source) +
+
+      tsibble::scale_x_yearmonth(
+        date_breaks = "1 year",
+        date_minor_breaks = "3 months",
+        date_labels = "%Y",
+        expand = expansion(mult = c(0, 0.03)),
+        guide = guide_axis(minor.ticks = TRUE)
+      ) +
+      scale_y_continuous(
+        name = axis$title,
+        breaks = axis$breaks,
+        labels = axis$labels
+      ) +
+      scale_color_manual(values = c(pal("blues", 2), pal("greens"))) +
+
+      apply_theme("line", basesize = basesize, font = font) +
+      theme(
+        axis.title.y = element_text(size = basesize, margin = margin(r = k(2))),
+        axis.ticks.x = element_line(color = pal("blues"), linewidth = k(0.05))
+      )
+
+  } else {
+    plot <- plot_empty(title, source, basesize, font)
+  }
+
+  return(plot)
+}
+```
+  
+```{r example-plot_regflow}
+plot_regflow("PAN")
+```
+  
+```{r tests-plot_regflow}
+test_that("plot_regflow works", {
+  expect_true(inherits(plot_regflow, "function")) 
+})
+```
+  
+
+## plot_regnet
+    
+
+  
+```{r function-plot_regnet}
+#' Plot Net Regular Entries
+#'
+#' @param iso ISO3 country code.
+#' @param basesize Base font size. Default is 7.
+#' @param font Font family. Default is "Open Sans".
+#' @param title Plot title. Default is "Net regular entries".
+#' 
+#' @import ggplot2
+#' @importFrom tsibble scale_x_yearmonth
+#' 
+#' @return A ggplot2 object.
+#' @export
+plot_regnet <- function(iso,
+                        basesize = 7,
+                        font = "Open Sans",
+                        title = "Net regular entries") {
+
+  k <- function(factor = 1) factor * basesize / .pt
+  source <- "Source: IOM Lighthouse Project."
+  data <- digest_data("regnet", iso)
+
+  if (nrow(data) > 0) {
+    axis <- set_axis(data$n, "Persons")
+
+    plot <- ggplot(data, aes(x = t, y = n)) +
+      geom_bar(
+        stat = "identity",
+        fill = ifelse(data$n >= 0, pal("blues", 2), pal("greens"))
+      ) +
+      geom_hline(yintercept = 0, color = pal("blues"), linewidth = k(0.1)) +
+      labs(title = title, caption = source) +
+
+      tsibble::scale_x_yearmonth(
+        date_breaks = "1 year",
+        date_minor_breaks = "3 months",
+        date_labels = "%Y",
+        expand = expansion(mult = c(0.03, 0.03)),
+        guide = guide_axis(minor.ticks = TRUE)
+      ) +
+      scale_y_continuous(
+        name = axis$title,
+        breaks = axis$breaks,
+        labels = axis$labels
+      ) +
+
+      apply_theme("bar-vertical", basesize = basesize, font = font) +
+      theme(
+        axis.title.y = element_text(size = basesize, margin = margin(r = k(2))),
+        axis.ticks.x = element_line(color = pal("blues"), linewidth = k(0.05))
+      )
+
+  } else {
+    plot <- plot_empty(title, source, basesize, font)
+  }
+
+  return(plot)
+}
+```
+  
+```{r example-plot_regnet}
+plot_regnet("BRA", title = "Custom Net Entry Title")
+```
+  
+```{r tests-plot_regnet}
+test_that("plot_regnet works", {
+  expect_true(inherits(plot_regnet, "function")) 
+})
+```
+  
+
+# Data
+
+## get_regflow
+    
+```{r development-get_regflow}
+# You can prepare the code of the get_regflow() function here
+```
+  
+```{r function-get_regflow}
+' Prepare Regional Flow Data for Charts
+#'
+#' Aggregates and combines registration inflow and outflow data.
+#'
+#' @param iso Optional character. ISO3 country code to filter the data by geography.
+#'   If NULL (default), returns data for all geographies.
+#'
+#' @return A data frame with columns `geo`, `t`, `n`, and `var`, where `var` indicates
+#'   whether the count is "Entries" or "Exits".
+#'
+#' @importFrom dplyr bind_rows summarise mutate filter
+#' @importFrom stats setNames
+#' @export
+
+get_regflow <- function(iso = NULL) {
+  # Aggregate inflow entries
+  entries <- regin |>
+    summarise(n = sum(n), .by = c(geo, t)) |>
+    mutate(var = "Entries")
+
+  # Aggregate outflow exits
+  exits <- regout |>
+    summarise(n = sum(n), .by = c(geo, t)) |>
+    mutate(var = "Exits")
+
+  # Combine entries and exits
+  data <- bind_rows(entries, exits)
+
+  # Filter by iso if provided
+  if (!is.null(iso)) {
+    data <- filter(data, geo == iso)
+  }
+
+  return(data)
+}
+```
+  
+```{r example-get_regflow}
+# Get all regional flows
+all_flows <- get_regflow()
+
+knitr::kable(head(all_flows,5))
+
+# Get flows for USA only
+usa_flows <- get_regflow("USA")
+
+knitr::kable(head(usa_flows,5))
+```
+  
+```{r tests-get_regflow}
+test_that("get_regflow works", {
+  expect_true(inherits(get_regflow, "function")) 
+})
+```
+  
+# get_regnet
+    
+ 
+  
+```{r function-get_regnet}
+#' Prepare Regional Net Registration Data for Charts
+#'
+#' Calculates net registrations by subtracting outflows from inflows aggregated by geography and time.
+#'
+#' @param iso Optional character. ISO3 country code to filter the data by geography.
+#'   If NULL (default), returns data for all geographies.
+#'
+#' @return A data frame with columns `t`, `geo`, `n_in`, `n_out`, and `n` where `n` is net registrations.
+#'
+#' @importFrom dplyr full_join summarise mutate filter
+#' @importFrom tidyr  drop_na
+#' @export
+
+get_regnet <- function(iso = NULL) {
+  inflows <- regin |>
+    dplyr::summarise(n_in = sum(n), .by = c(geo, t))
+
+  outflows <- regout |>
+    dplyr::summarise(n_out = sum(n), .by = c(geo, t))
+
+  # Join inflows and outflows by time and geography
+  data <- dplyr::full_join(inflows, outflows, by = c("t", "geo")) |>
+    tidyr::drop_na() |>
+    dplyr::mutate(n = n_in - n_out)
+
+  # Filter by iso if provided
+  if (!is.null(iso)) {
+    data <- dplyr::filter(data, geo == iso)
+  }
+
+  return(data)
+}
+```
+  
+```{r example-get_regnet}
+# Get net registrations for all geographies
+net_all <- get_regnet()
+
+knitr::kable(head(net_all,5))
+# Get net registrations for USA only
+
+net_usa <- get_regnet("USA")
+
+knitr::kable(head(net_usa,5))
+```
+  
+```{r tests-get_regnet}
+test_that("get_regnet works", {
+  expect_true(inherits(get_regnet, "function")) 
+})
+```
+  
+## digest_data
+  
+```{r function-digest_data}
+#' Retrieve Data for Plotting by Key and Country ISO Code
+#'
+#' This function dynamically calls a getter function from the `amerdigest` package
+#' based on the provided `key`. Optionally, it filters data by the ISO3 country code.
+#'
+#' @param key Character. The data key to specify which getter function to call.
+#'   Must correspond to a function named `get_<key>` inside the `amerdigest` package.
+#' @param iso Character or NULL. Optional ISO3 country code to filter data by country.
+#'   If provided, must exist in `countrynames$iso3`.
+#' @param ... Additional arguments passed to the underlying getter function.
+#'
+#' @return A list (or object) returned by the called getter function.
+#'
+#' @importFrom cli cli_abort
+#' @export
+
+digest_data <- function(key, iso = NULL, ...) {
+  # Construct function name
+  fxn_name <- paste0("get_", key)
+
+  # Check if function exists in amerdigest namespace
+  if (exists(fxn_name, envir = asNamespace("amerdigest"), inherits = FALSE)) {
+
+    # Validate ISO3 code if provided
+    if (!is.null(iso)) {
+      if (!(iso %in% countrynames$iso3)) {
+        cli::cli_abort("{.val {iso}} is not a valid ISO3 code.")
+      }
+    }
+
+    # Retrieve getter function
+    getter <- get(fxn_name, envir = asNamespace("amerdigest"))
+
+    # Call getter function with iso and additional arguments
+    return(getter(iso, ...))
+
+  } else {
+
+    cli::cli_abort("{.val {key}} is not a valid getter key.")
+  }
+}
+```
+  
+```{r example-digest_data}
+# Example usage assuming amerdigest and countrynames are loaded
+data <- digest_data("regflow", iso = "USA")
+knitr::kable(data)
+```
+  
+```{r tests-digest_data}
+test_that("digest_data works", {
+  expect_true(inherits(digest_data, "function")) 
+})
+```
+  
+  
+## digest_plot
+    
+```{r function-digest_plot}
+#' Generate a Preset Plot or Retrieve Plot Metadata
+#'
+#' This function generates a ggplot object for a specified plot `key` and country ISO3 code,
+#' or returns the plot's metadata if `iso` is `NULL`.
+#'
+#' @param key Character. The plot key identifying which plot to generate.
+#'   Must correspond to a function named `plot_<key>` in the `amerdigest` package.
+#' @param iso Character or NULL. ISO3 country code for which to generate the plot.
+#'   If `NULL`, the function returns plot metadata instead of a plot.
+#' @param ... Additional arguments passed to the plot generating function.
+#'
+#' @return A `ggplot` object if `iso` is provided, or a list containing plot metadata if `iso` is `NULL`.
+#'
+#' @importFrom cli cli_abort
+#' @import ggplot2 
+#' @export
+
+digest_plot <- function(key,
+                        iso = NULL,
+                        ...) {
+
+  plotter_name <- paste0("plot_", key)
+
+  # Check if plot function exists
+  if (!exists(plotter_name, envir = asNamespace("amerdigest"), inherits = FALSE)) {
+    cli::cli_abort("{.val {key}} is not a valid plot key.")
+  }
+
+  plotter <- get(plotter_name, envir = asNamespace("amerdigest"))
+
+  # If iso is NULL, return plot metadata (assuming the plotter supports this)
+  if (is.null(iso)) {
+    #if ("metadata" %in% names(formals(plotter))) {
+    #  return(plotter(metadata = TRUE, ...))
+    #} else {
+      # If no metadata argument, return NULL or throw informative message
+      cli::cli_abort("Plot metadata is not available for {.val {key}}.")
+    #}
+  }
+
+  # Validate iso
+  if (!(iso %in% countrynames$iso3)) {
+    cli::cli_abort("{.val {iso}} is not a valid ISO3 code.")
+  }
+
+  # Generate and return plot
+  plotter(iso, ...)
+}
+```
+  
+```{r example-digest_plot}
+# Generate a plot for USA
+p1 <- digest_plot(key="regflow", iso = "USA")
+
+p1
+# Test error catching
+p2 <- digest_plot(key="regnet", iso = "USA")
+p2
+
+```
+
+
+```{r tests-digest_plot}
+test_that("digest_plot works", {
+  expect_true(inherits(digest_plot, "function")) 
+})
+```
+
+
+    
+
+
+# caption_placeholder
+    
+
+  
+```{r function-caption_placeholder}
+#' Placeholder caption text generator
+#'
+#' Generates a placeholder caption string with sample lorem ipsum text,
+#' formatted into 1, 2 (default), or 3 columns, with special column break markers.
+#'
+#' @param ncol Integer. Number of columns for caption layout. One of 1, 2, or 3. Default is 2.
+#' @return Character string with placeholder caption text.
+#' @export
+
+
+caption_placeholder <- function(ncol = 2) {
+
+  # Validate input
+  if (!ncol %in% c(1, 2, 3)) {
+    stop("ncol must be 1, 2, or 3")
+  }
+
+  if (ncol == 1) {
+    caption <- paste(
+      "- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc",
+      "dignissim nec tellus sit amet cursus. Nam justo risus, dapibus in massa",
+      "vitae, dictum feugiat elit.\n",
+      "- Curabitur fermentum vehicula urna ac fringilla. Integer interdum orci",
+      "vehicula volutpat maximus. Duis gravida vestibulum ex nec fermentum.",
+      "Fusce sed aliquet ante, at ultrices leo."
+    )
+  } else if (ncol == 3) {
+    caption <- paste(
+      "- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc",
+      "dignissim nec tellus sit amet cursus. Nam justo risus, dapibus in massa",
+      "vitae, dictum feugiat elit.\n",
+      "#colbreak()\n",
+      "- Curabitur fermentum vehicula urna ac fringilla. Integer interdum orci",
+      "vehicula volutpat maximus. Duis gravida vestibulum ex nec fermentum.",
+      "Fusce sed aliquet ante, at ultrices leo.\n",
+      "#colbreak()\n",
+      "- Donec lectus urna, aliquam nec posuere quis, faucibus ac ligula.",
+      "Phasellus tristique tortor eget urna scelerisque vehicula. Phasellus eu",
+      "blandit felis, ac molestie neque. Vestibulum posuere leo at risus aliquam",
+      "convallis.\n"
+    )
+  } else { # ncol == 2 (default)
+    caption <- paste(
+      "- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc",
+      "dignissim nec tellus sit amet cursus. Nam justo risus, dapibus in massa",
+      "vitae, dictum feugiat elit.\n",
+      "- Curabitur fermentum vehicula urna ac fringilla. Integer interdum orci",
+      "vehicula volutpat maximus. Duis gravida vestibulum ex nec fermentum.",
+      "Fusce sed aliquet ante, at ultrices leo.\n",
+      "#colbreak()\n",
+      "- Donec lectus urna, aliquam nec posuere quis, faucibus ac ligula.",
+      "Phasellus tristique tortor eget urna scelerisque vehicula. Phasellus eu",
+      "blandit felis, ac molestie neque. Vestibulum posuere leo at risus aliquam",
+      "convallis.\n",
+      "- Ut leo ante, faucibus vitae elit at, vulputate laoreet ligula. Sed",
+      "dolor erat, ultricies eget fermentum vel, semper id nulla. Morbi sit amet",
+      "feugiat ipsum."
+    )
+  }
+
+  return(caption)
+}
+```
+  
+```{r example-caption_placeholder}
+cat(caption_placeholder(1))  # One-column placeholder caption
+cat(caption_placeholder(2))  # Two-column placeholder caption (default)
+cat(caption_placeholder(3))  # Three-column placeholder caption
+```
+  
+```{r tests-caption_placeholder}
+test_that("caption_placeholder works", {
+  expect_true(inherits(caption_placeholder, "function")) 
+})
+```
+
+
+# render_digest
+    
+
+  
+```{r function-render_digest}
+#' Create a Quarto file based on defined template and for a specific country
+#'
+#' This function creates a Quarto file based on defined template
+#'  by copying the necessary template files
+#' into the `_extensions` directory and generating
+#' a new Quarto Markdown (`.qmd`) file.
+#'
+#' @param file_name A character string specifying the name of the new
+#'     Quarto Markdown file.
+#'   If `NULL`, the function use `"index`" as the default file name.
+#' @param country_iso the country iso number for the report to generate
+#'
+#' @return This function does not return a value. It performs file operations to set up
+#'   the Quarto IOM story template in the current working directory.
+#'
+#' @details
+#' The function performs the following steps:
+#' \itemize{
+#'   \item Checks if `file_name` is provided. If not, it will be index per default.
+#'   \item Verifies what `ext_name` is selected.
+#'   \item Creates the `_extensions` directory if it does not exist.
+#'   \item Creates a subdirectory within `_extensions` for the specified extension.
+#'   \item Copies the extension files from the package's internal `extdata`
+#'          directory to `_extensions`.
+#'   \item Checks if the extension files were successfully copied.
+#'   \item Creates a new Quarto Markdown file based on the template.
+#'   \item Opens the new file in the editor.
+#' }
+#'
+#' @importFrom utils file.edit
+#' @importFrom here here
+#' @export
+render_digest <- function(file_name = NULL,
+                          country_iso ) {
+
+  if (is.null(file_name)) {
+    file_name <- "index"
+  }
+
+  ext_name = "digest"
+  # check for existing _extensions directory
+  if(!file.exists("_extensions")) dir.create("_extensions")
+  message("Created '_extensions' folder")
+
+  # create folder
+  if(!file.exists(paste0("_extensions/", ext_name)))
+    dir.create(paste0("_extensions/", ext_name))
+
+  # copy from internals
+  file.copy(
+    from = system.file(paste0("extdata/_extensions/", ext_name),
+                       package = "amerdigest"),
+    to = paste0("_extensions/", ext_name),
+    overwrite = TRUE,
+    recursive = TRUE,
+    copy.mode = TRUE
+  )
+
+  # logic check to make sure extension files were moved
+  n_files <- length(dir(paste0("_extensions/", ext_name)))
+
+  if(n_files >= 2){
+    message(paste(ext_name, "was installed to _extensions folder in
+                  current working directory."))
+  } else {
+    message("Extension appears not to have been created")
+  }
+
+  # create new qmd report based on skeleton
+  file.copy(
+    system.file(paste0("extdata/_extensions/digest/", "template.qmd",
+                   collapse = ""),
+                package = "amerdigest"),
+
+            to = here::here(paste0(file_name, ".qmd",
+                        collapse = "")),
+            overwrite = TRUE,
+            recursive = FALSE,
+            copy.mode = TRUE)
+
+  #open the new file in the editor
+  file.edit(here::here(paste0(file_name, ".qmd",
+                               collapse = "")))
+
+}
+```
+  
+```{r example-render_digest}
+# render_digest(country_iso="ARG")
+```
+  
+```{r tests-render_digest}
+test_that("render_digest works", {
+  expect_true(inherits(render_digest, "function")) 
+})
+```
+  
+
+```{r development-inflate, eval=FALSE}
+# Run but keep eval=FALSE to avoid infinite loop
+# Execute in the console directly
+fusen::inflate(flat_file = "dev/flat_my_fun.Rmd", vignette_name = "Package Development Documentation through {fusen}")
+```
+

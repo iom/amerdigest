@@ -9,3 +9,5 @@
 /.quarto/
 
 data-raw/*.xlsx
+inst/doc
+

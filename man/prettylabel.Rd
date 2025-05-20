@@ -2,11 +2,12 @@
 % Please edit documentation in R/prettylabel.R
 \name{prettylabel}
 \alias{prettylabel}
-\title{Pretty number formatting}
+\title{Pretty Number Formatting}
 \usage{
 prettylabel(
   N,
   signif = 2,
+  shorten = TRUE,
   spell = FALSE,
   padzero = FALSE,
   pct = FALSE,
@@ -14,23 +15,42 @@ prettylabel(
 )
 }
 \arguments{
-\item{N}{Number or vector of numbers to be formatted.}
+\item{N}{A number or numeric vector to be formatted.}
 
-\item{signif}{Number of significant digits.}
+\item{signif}{Number of significant digits to retain. Must be > 0. Default is 2.}
 
-\item{spell}{Whether to spell out "millions", "billions", and "trillions".}
+\item{shorten}{Logical. If \code{TRUE}, abbreviates long numbers (e.g., 1,200 → "1.2K").
+Currently not used directly but preserved for backward compatibility.}
 
-\item{padzero}{Whether to include zeros after the decimal point.}
+\item{spell}{Logical. If \code{TRUE}, spells out large values (e.g., "million" instead of "M").}
 
-\item{pct}{Whether to include a percent sign.}
+\item{padzero}{Logical. If \code{TRUE}, pads decimals to reach the requested precision.}
 
-\item{currency}{Whether to add a currency sign.}
+\item{pct}{Logical. If \code{TRUE}, appends a percent sign or " per cent" if \code{spell = TRUE}.}
 
-\item{shorten}{Whether to abbreviate long numbers.}
+\item{currency}{Optional string (e.g., "$", "€") to prepend as a currency symbol.}
 }
 \value{
-String or vector of strings.
+A character vector of formatted number labels.
 }
 \description{
-Formats numbers for display in charts.
+Formats numbers for display in charts and tables. Supports abbreviation
+(e.g., thousands, millions), spelling out large numbers, adding percent
+or currency signs, and controlling decimal padding.
+}
+\examples{
+
+prettylabel(123456)                      # "123K"
+
+prettylabel(123456789, spell = TRUE)     # "123 million"
+
+prettylabel(0.756, pct = TRUE)           # "75.6\%"
+
+prettylabel(1200, currency = "$")        # "$1.2K"
+
+prettylabel(c(1e6, 2e9), signif = 3)     # "1.00M" "2.00B"
+
+prettylabel(NA)                          # NA
+
+
 }

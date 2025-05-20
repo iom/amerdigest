@@ -2,24 +2,33 @@
 % Please edit documentation in R/digest_plot.R
 \name{digest_plot}
 \alias{digest_plot}
-\title{Generate a preset plot}
+\title{Generate a Preset Plot or Retrieve Plot Metadata}
 \usage{
-digest_plot(key, iso = NULL, basesize = basesize, font = font, ...)
+digest_plot(key, iso = NULL, ...)
 }
 \arguments{
-\item{key}{Plot key.}
+\item{key}{Character. The plot key identifying which plot to generate.
+Must correspond to a function named \verb{plot_<key>} in the \code{amerdigest} package.}
 
-\item{iso}{Country.}
+\item{iso}{Character or NULL. ISO3 country code for which to generate the plot.
+If \code{NULL}, the function returns plot metadata instead of a plot.}
 
-\item{basesize}{Base text size. Default is 7.}
-
-\item{font}{Font family. Default is Open Sans.}
-
-\item{...}{Optional arguments.}
+\item{...}{Additional arguments passed to the plot generating function.}
 }
 \value{
-\code{ggplot2} object or a list of metadata.
+A \code{ggplot} object if \code{iso} is provided, or a list containing plot metadata if \code{iso} is \code{NULL}.
 }
 \description{
-If \code{iso=NULL}, function returns \code{key} plot's metadata.
+This function generates a ggplot object for a specified plot \code{key} and country ISO3 code,
+or returns the plot's metadata if \code{iso} is \code{NULL}.
+}
+\examples{
+# Generate a plot for USA
+p1 <- digest_plot(key="regflow", iso = "USA")
+
+p1
+# Test error catching
+p2 <- digest_plot(key="regnet", iso = "USA")
+p2
+
 }

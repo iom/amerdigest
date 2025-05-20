@@ -8,8 +8,26 @@
 \description{
 Generates report with charts for a given country using a prescribed template.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://iom.github.io/amerdigest/}
+}
+
+}
 \author{
 \strong{Maintainer}: Kenneth S. Reyes \email{kereyes@iom.int}
+
+Authors:
+\itemize{
+  \item Freddy Nicolas Marquez \email{fmarquez@iom.int}
+  \item Edouard Legoupil \email{elegoupil@iom.int}
+}
+
+Other contributors:
+\itemize{
+  \item IOM [copyright holder]
+}
 
 }
 \keyword{internal}

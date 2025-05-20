@@ -24,6 +24,6 @@ The main function is `render_digest(iso)`, where `iso` is the three-letter ISO c
 
 ```r
 library(amerdigest)
-render_digest("ARG")  # Generate digest for Argentina
+render_digest(country_iso="ARG")  # Generate digest for Argentina
 ```
 

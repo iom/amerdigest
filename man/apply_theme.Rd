@@ -2,24 +2,55 @@
 % Please edit documentation in R/apply_theme.R
 \name{apply_theme}
 \alias{apply_theme}
-\title{Apply IOM theme to a plot}
+\title{Apply IOM theme to a ggplot object}
 \usage{
-apply_theme(type, basesize = 7, font = "Gill Sans Nova", facets = FALSE)
+apply_theme(type, basesize = 7, font = "Open Sans", facets = FALSE)
 }
 \arguments{
-\item{type}{What type of plot is being themed? Accepts "line",
-"bar-horizontal", "bar-vertical", "map", and "void".}
+\item{type}{Character. Type of plot to theme. One of "line", "bar-horizontal",
+"bar-vertical", "scatter", "map", or "void".}
 
-\item{basesize}{Font size in points. Default is 10.}
+\item{basesize}{Numeric. Base font size in points. Default is 7.}
 
-\item{font}{Font family. Default is Open Sans.}
+\item{font}{Character. Font family for all text elements. Default is "Gill Sans Nova".}
 
-\item{facets}{Is this a faceted plot?}
+\item{facets}{Logical. Whether the plot is faceted. Default is FALSE.}
+}
+\value{
+A list of ggplot2 theme elements to be added to a ggplot object.
 }
 \description{
 Adds thematic presets adhering to the IOM visual branding to a ggplot object.
+The function adjusts text sizes, colors, legend positioning, panel grids,
+and other visual elements based on the specified plot type.
 }
 \details{
-The \code{basesize} parameter is used for the font size of axis labels and titles
-and plot annotations.
+The \code{basesize} parameter controls the base font size for axis labels, titles,
+and plot annotations. The \code{font} parameter sets the font family.
+The \code{facets} parameter specifies whether the plot uses faceting, which adjusts
+the strip appearance accordingly.
+
+Supported plot types:
+\itemize{
+\item \code{"line"} - Line plots with appropriate legend keys and grid lines.
+\item \code{"bar-horizontal"} - Horizontal bar plots with grid on x-axis.
+\item \code{"bar-vertical"} - Vertical bar plots with grid on y-axis.
+\item \code{"scatter"} - Scatter plots with grid lines.
+\item \code{"map"} - Map plots with minimal axis text and no grid.
+\item \code{"void"} - Empty theme (not implemented here, but can be added).
+}
+}
+\examples{
+library(ggplot2)
+
+# Simple scatter plot with IOM theme
+p <- ggplot(mpg, aes(displ, hwy, color = class)) +
+  geom_point() +
+  labs(
+    title = "Scatter Plot with IOM Theme",
+    caption = "Source: mpg dataset"
+  ) +
+  apply_theme(type = "scatter", basesize = 9)
+
+p
 }

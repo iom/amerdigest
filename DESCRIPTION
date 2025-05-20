@@ -1,40 +1,41 @@
-Package: amerdigest
 Type: Package
+Package: amerdigest
 Title: Mobility in the Americas Digest
 Version: 0.1.0
 Authors@R: c(
-    person(
-      "Kenneth S.", "Reyes",
-      email = "kereyes@iom.int",
-      role = c("aut", "cre")
-    ),
-    person(
-      "Freddy Nicolas", "Marquez",
-      email = "fmarquez@iom.int",
-      role = c("aut" )
-    )
+    person("Kenneth S.", "Reyes", , "kereyes@iom.int", role = c("aut", "cre")),
+    person("Freddy Nicolas", "Marquez", , "fmarquez@iom.int", role = "aut"),
+    person("Edouard", "Legoupil", , "elegoupil@iom.int", role = "aut"),
+    person("IOM", role = "cph")
   )
-Description: Generates report with charts for a given country using a prescribed
-    template.
+Description: Generates report with charts for a given country using a
+    prescribed template.
 License: MIT + file LICENSE
 URL: https://iom.github.io/amerdigest/
-Encoding: UTF-8
-LazyData: true
 Depends: 
-    R (>= 4.3),
+    R (>= 4.3)
 Imports: 
     cli,
     cowplot (>= 1.1.3),
     dplyr (>= 1.1.4),
-    forcats,
-    gdidata,
+    extrafont,
     ggplot2 (>= 3.5.0),
-    ggtext,
-    lubridate,
-    rlang,
-    stringr,
-    tibble,
+    ggrepel,
+    grid,
+    here,
+    stats,
+    systemfonts,
+    tidyr,
     tsibble,
-    tidyr
+    utils
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
+Config/fusen/version: 0.7.1
+Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
